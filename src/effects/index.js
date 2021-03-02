@@ -6,6 +6,8 @@ var web3 = new Web3('https://mainnet.infura.io/v3/2e01f669f9d6447a8ce6a02706dabc
 
 let blockInfos = [];
 let source = {}
+const TOTAL_BLOCK = 10
+
 
 const SOURCE_ADDRESSED_ARRAY = [
   '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
@@ -21,7 +23,7 @@ const SOURCE_ADDRESSED_ARRAY = [
 
 const initBlock = async() => {
   const blockNumber = await web3.eth.getBlockNumber();
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < TOTAL_BLOCK; i++) {
     const blockInfo = await web3.eth.getBlock(blockNumber - i);
     blockInfos.push(blockInfo);
   }
@@ -30,11 +32,13 @@ const initBlock = async() => {
 const getLatestBlocks = async () => {
   const latestBlockNumber = await web3.eth.getBlockNumber();
   if(blockInfos.length > 0) {
-    if(latestBlockNumber === blockInfos[9].number) return 
-    const lastBlockNumber = blockInfos[9].number 
+    if(latestBlockNumber === blockInfos[TOTAL_BLOCK-1].number) return 
+    const lastBlockNumber = blockInfos[TOTAL_BLOCK-1].number 
     const latestBLock = await web3.eth.getBlock(Number(lastBlockNumber)+1);
     blockInfos.unshift(latestBLock)
     blockInfos.pop()
+
+    sortingToAddresses(blockInfos)
   }
   
   console.log('blockInfos', blockInfos);
@@ -43,12 +47,11 @@ const getLatestBlocks = async () => {
 const sortingToAddresses = async(blockInfos) => {
   // debugger
   console.log('source 1', source)
-  console.log('blockInfos.slice(0,10)', blockInfos.slice(0,10))
-  for (let i of blockInfos.slice(0,10)) {
-    for(let j of i.transactions) {
+  for (let i of blockInfos) {
+    for(let j of i.transactions.slice(0,10)) {
       const transaction = await web3.eth.getTransaction(j)
       if(SOURCE_ADDRESSED_ARRAY.includes(transaction.to)) {
-        source[j] = source[j]+1 || 0
+        source[transaction.to] = source[transaction.to]+1 || 0
       }
     }
   }
