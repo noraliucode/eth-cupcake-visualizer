@@ -29,7 +29,7 @@ const initBlock = async() => {
   }
 }
 
-const getLatestBlocks = async () => {
+const getLatestBlocks = async (setCounts) => {
   const latestBlockNumber = await web3.eth.getBlockNumber();
   if(blockInfos.length > 0) {
     if(latestBlockNumber === blockInfos[TOTAL_BLOCK-1].number) return 
@@ -38,15 +38,15 @@ const getLatestBlocks = async () => {
     blockInfos.unshift(latestBLock)
     blockInfos.pop()
 
-    sortingToAddresses(blockInfos)
+    sortingToAddresses(blockInfos, setCounts)
   }
   
-  console.log('blockInfos', blockInfos);
+  // console.log('blockInfos', blockInfos);
 };
 
-const sortingToAddresses = async(blockInfos) => {
+const sortingToAddresses = async(blockInfos, setCounts) => {
   // debugger
-  console.log('source 1', source)
+  // console.log('source 1', source)
   for (let i of blockInfos) {
     for(let j of i.transactions.slice(0,10)) {
       const transaction = await web3.eth.getTransaction(j)
@@ -55,16 +55,17 @@ const sortingToAddresses = async(blockInfos) => {
       }
     }
   }
+  setCounts(source)
   console.log('source', source)
 }
 
-export const GetBlockEffect = () => {
+export const GetBlockEffect = (setCounts) => {
   const [intervalId, setIntervalId] = useState();
   useEffect(() => {
     if(!blockInfos.length) {
       initBlock()
     }
-    const id = setInterval(getLatestBlocks, 10000);
+    const id = setInterval(getLatestBlocks, 10000, setCounts);
     setIntervalId(id);
     return () => clearInterval(id);
   }, []);

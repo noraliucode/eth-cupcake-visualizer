@@ -1,10 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
-
+import {useState} from 'react'
 import {GetBlockEffect} from './effects'
 
 function App() {
-  GetBlockEffect()
+  const [counts, setCounts] = useState(null)
+  GetBlockEffect(setCounts)
+  console.log('counts', counts)
   
   return (
     <div className="App">
