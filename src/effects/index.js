@@ -1,8 +1,8 @@
 import {useEffect, useState} from 'react'
 import Web3 from 'web3'
 
-// var web3 = new Web3('https://mainnet.infura.io/v3/83b98a98c5ca4761ac26ad2e8210df97');
-var web3 = new Web3('https://mainnet.infura.io/v3/2e01f669f9d6447a8ce6a02706dabc50');
+var web3 = new Web3('https://mainnet.infura.io/v3/83b98a98c5ca4761ac26ad2e8210df97');
+// var web3 = new Web3('https://mainnet.infura.io/v3/2e01f669f9d6447a8ce6a02706dabc50');
 
 let blockInfos = [];
 let source = {}
@@ -27,6 +27,7 @@ const initBlock = async() => {
     const blockInfo = await web3.eth.getBlock(blockNumber - i);
     blockInfos.push(blockInfo);
   }
+  console.log('init blockInfos', blockInfos)
 }
 
 const getLatestBlocks = async (setCounts) => {
@@ -38,23 +39,22 @@ const getLatestBlocks = async (setCounts) => {
     blockInfos.unshift(latestBLock)
     blockInfos.pop()
 
-    sortingToAddresses(blockInfos, setCounts)
+    sortingToAddresses(blockInfos[blockInfos.length-1], setCounts)
   }
-  
-  // console.log('blockInfos', blockInfos);
 };
 
-const sortingToAddresses = async(blockInfos, setCounts) => {
-  // debugger
-  // console.log('source 1', source)
-  for (let i of blockInfos) {
-    for(let j of i.transactions.slice(0,10)) {
-      const transaction = await web3.eth.getTransaction(j)
-      if(SOURCE_ADDRESSED_ARRAY.includes(transaction.to)) {
-        source[transaction.to] = source[transaction.to]+1 || 0
-      }
+const sortingToAddresses = async(blockInfo, setCounts) => {
+  const transactions = blockInfo.transactions.length > 210 ? blockInfo.transactions.slice(0,210) : blockInfo.transactions
+
+  for(let i of transactions) {
+    console.log('i', i)
+    const transaction = await web3.eth.getTransaction(i)
+    if(SOURCE_ADDRESSED_ARRAY.includes(transaction.to) || SOURCE_ADDRESSED_ARRAY.includes(transaction.from)) {
+      source[transaction.to] = source[transaction.to]+1 || 0
+      console.log('source', source)
     }
   }
+
   setCounts(source)
   console.log('source', source)
 }
@@ -65,7 +65,7 @@ export const GetBlockEffect = (setCounts) => {
     if(!blockInfos.length) {
       initBlock()
     }
-    const id = setInterval(getLatestBlocks, 10000, setCounts);
+    const id = setInterval(getLatestBlocks, 18500, setCounts);
     setIntervalId(id);
     return () => clearInterval(id);
   }, []);
