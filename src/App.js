@@ -25,7 +25,7 @@ const SOURCE_ADDRESSES = {
         count: source[i]
       })
     }
-    return <div>{bb.map(x=><><div>{`${x.name}: ${x.count}`}</div></>)}</div>
+    return <div>{bb.map(x=><div key={x.name}>{`${x.name}: ${x.count}`}</div>)}</div>
   }
 
 function App() {
