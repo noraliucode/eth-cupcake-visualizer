@@ -6,7 +6,7 @@ var web3 = new Web3('https://mainnet.infura.io/v3/83b98a98c5ca4761ac26ad2e8210df
 
 let blockInfos = [];
 let source = {}
-const TOTAL_BLOCK = 10
+const TOTAL_BLOCK = 1
 
 
 const SOURCE_ADDRESSED_ARRAY = [
@@ -21,12 +21,13 @@ const SOURCE_ADDRESSED_ARRAY = [
   '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   ]
 
-const initBlock = async() => {
+const initBlock = async(setCounts) => {
   const blockNumber = await web3.eth.getBlockNumber();
   for (var i = 0; i < TOTAL_BLOCK; i++) {
     const blockInfo = await web3.eth.getBlock(blockNumber - i);
     blockInfos.push(blockInfo);
   }
+  getLatestBlocks(setCounts)
   console.log('init blockInfos', blockInfos)
 }
 
@@ -47,11 +48,12 @@ const sortingToAddresses = async(blockInfo, setCounts) => {
   const transactions = blockInfo.transactions.length > 210 ? blockInfo.transactions.slice(0,210) : blockInfo.transactions
 
   for(let i of transactions) {
-    console.log('i', i)
     const transaction = await web3.eth.getTransaction(i)
-    if(SOURCE_ADDRESSED_ARRAY.includes(transaction.to) || SOURCE_ADDRESSED_ARRAY.includes(transaction.from)) {
+    if(SOURCE_ADDRESSED_ARRAY.includes(transaction.to)) {
       source[transaction.to] = source[transaction.to]+1 || 0
-      console.log('source', source)
+    }
+    if(SOURCE_ADDRESSED_ARRAY.includes(transaction.from)) {
+      source[transaction.from] = source[transaction.from]+1 || 0
     }
   }
 
@@ -59,11 +61,11 @@ const sortingToAddresses = async(blockInfo, setCounts) => {
   console.log('source', source)
 }
 
-export const GetBlockEffect = (setCounts) => {
+export const GetBlockEffect = (setCounts, counts) => {
   const [intervalId, setIntervalId] = useState();
   useEffect(() => {
     if(!blockInfos.length) {
-      initBlock()
+      initBlock(setCounts)
     }
     const id = setInterval(getLatestBlocks, 18500, setCounts);
     setIntervalId(id);
