@@ -84,28 +84,26 @@ function App() {
       if(data.length===0) {
         initBlock()
       }
-      const id = setInterval(getLatestBlocks, 18500);
+      const id = setInterval(getLatestBlocks, 10000);
       setIntervalId(id);
       return () => clearInterval(id);
     }, []);
     return () => clearInterval(intervalId);
   };
   GetBlockEffect(setCounts, counts)
-  // console.log('counts', counts)
 
-  // let blockInfos = [];
-
-  const renderSource = (_source) => {
-    const bb = []
-    for(let i in _source) {
-      // debugger
-      console.log('SOURCE_ADDRESSES[i]!!',SOURCE_ADDRESSES[i])
-      bb.push({
-        name: SOURCE_ADDRESSES[i],
-        count: _source[i]
-      })
+  const renderSource = () => {
+    const _renderSource = (item) => {
+      let Source
+      for(let key in item) {
+        Source = <div>{`${SOURCE_ADDRESSES[key]}: ${item[key]}`}</div>
+      }
+      return Source
     }
-    return <div>{bb.map(x=><div key={x.name}>{`${x.name}: ${x.count}`}</div>)}</div>
+
+    return <div>{data.map(x=>{
+      return <div className='blockStyle' key={x.number}><div>{x.number}</div>{_renderSource(x.source)}</div>
+    })}</div>
   }
 
 const initBlock = async() => {
@@ -168,25 +166,13 @@ const sortingToAddresses = async(blockInfo) => {
   // console.log('source', source)
   return source
 }
-  
+
+console.log('data', data)
+
   return (
     <div className="App">
       <header className="App-header">
-        {/* <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a> */}
-        <div>{`BlockNumber: ${blockNumber}`}</div>
-
-        <div>{renderSource(counts)}</div>
+        <div>{renderSource()}</div>
       </header>
     </div>
   );
