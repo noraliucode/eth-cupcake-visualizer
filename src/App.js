@@ -6,6 +6,8 @@ import Web3 from 'web3'
 var web3 = new Web3('https://mainnet.infura.io/v3/83b98a98c5ca4761ac26ad2e8210df97');
 // var web3 = new Web3('https://mainnet.infura.io/v3/2e01f669f9d6447a8ce6a02706dabc50');
 
+let data = []
+
 const SOURCE_ADDRESSES = {
   '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D': 'uniswap',
   '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f': 'uniswap',
@@ -73,7 +75,7 @@ function App() {
   const [counts, setCounts] = useState(null)
   const [blockNumber, setBlockNumber] = useState(null)
   // const [source, setSource] = useState({})
-  const [data, setData] = useState([])
+  const [_data, setData] = useState([])
 
   const dataRef = useRef(data);
   dataRef.current = data;
@@ -81,60 +83,76 @@ function App() {
   const GetBlockEffect = () => {
     const [intervalId, setIntervalId] = useState();
     useEffect(() => {
-      if(data.length===0) {
-        initBlock()
-      }
-      const id = setInterval(getLatestBlocks, 10000);
+      // if(data.length===0) {
+      //   initBlock()
+      // }
+      initBlock()
+      const id = setInterval(getLatestBlocks, 18000);
       setIntervalId(id);
       return () => clearInterval(id);
     }, []);
     return () => clearInterval(intervalId);
   };
-  GetBlockEffect(setCounts, counts)
+  GetBlockEffect()
 
   const renderSource = () => {
+    // return <></>
+    if(!_data.length>0)return 
+    
     const _renderSource = (item) => {
-      let Source
+      let Source = []
       for(let key in item) {
-        Source = <div>{`${SOURCE_ADDRESSES[key]}: ${item[key]}`}</div>
+        Source.push(<div>{`${SOURCE_ADDRESSES[key]}: ${item[key]}`}</div>)
       }
-      return Source
+      return Source.map(x=> {
+        return <div key={x.number}>{x}</div>
+      })
     }
 
-    return <div>{data.map(x=>{
+    return _data.map(x=>{
       return <div className='blockStyle' key={x.number}><div>{x.number}</div>{_renderSource(x.source)}</div>
-    })}</div>
+    })
   }
 
 const initBlock = async() => {
-  console.log('initBlock!!')
+  console.log('initBlock start...')
+  console.log('getBlockNumber start....')
   const blockNumber = await web3.eth.getBlockNumber();
   console.log('getBlockNumber done')
+  console.log('getBlock start....')
   const blockInfo = await web3.eth.getBlock(blockNumber);
-  console.log('getBlockInfo done')
-  setBlockNumber(blockNumber)
+  console.log('getBlock done')
+  // setBlockNumber(blockNumber)
   const source = await sortingToAddresses(blockInfo)
     const info = data.concat({
       transactions: blockInfo.transactions,
       number: blockInfo.number,
       source
     })
-    console.log('initBlock!! 2 info', info)
+    
+    data = info
+    console.log('initBlock successfully. data:', data)
     setData(info)
 }
 
 const getLatestBlocks = async () => {
+  console.log('getLatestBlock start...')
   const latestBlockNumber = await web3.eth.getBlockNumber();
-  console.log('getLatestBlocks! getBlockNumber done')
-  setBlockNumber(latestBlockNumber)
-  console.log('getLatestBlocks! dataRef.current:', dataRef.current)
-  if(data.length > 0) {
+  // console.log('getLatestBlockNumber done. latestBlockNumber: ', latestBlockNumber)
+  // setBlockNumber(latestBlockNumber)
+  // console.log('getLatestBlocks! dataRef.current:', dataRef.current)
+  // console.log('getLatestBlocks! data[data.length-1].number', data[data.length-1].number)
 
-    if(latestBlockNumber === data[data.length-1].number) return 
-    const lastBlockNumber = data[data.length-1].number 
+  // // debugger
+  if(data.length > 0) {
     // debugger
-    const latestBLock = await web3.eth.getBlock(Number(lastBlockNumber)+1);
-    console.log('getLatestBlocks!! 2 getlatestBLock done. latestBLock:', latestBLock)
+    
+    let lastBlockNumber = data[data.length-1].number 
+    // debugger
+    lastBlockNumber = lastBlockNumber + 1
+    console.log('getLatestBlock getBlock start....lastBlockNumber:', lastBlockNumber)
+    const latestBLock = await web3.eth.getBlock(lastBlockNumber);
+    console.log('getLatestBlock getBlock done. ')
     // blockInfos.unshift(latestBLock)
     // blockInfos.pop()
     const source = await sortingToAddresses(latestBLock)
@@ -143,17 +161,28 @@ const getLatestBlocks = async () => {
       number: latestBLock.number,
       source
     }
+    // debugger
+    for(let i of data) { // 現在還可以這樣寫但要是data很多就不行 
+      if (i.number === latestBLock.number) {
+        return
+      }
+    }
+
+    // debugger
     const newData = data.concat(info)
-    console.log('getLatestBlocks!! 3 newData', newData)
+    console.log('getLatestBlock. Get new data strcuture for latest block done. newData:' , newData)
+    data = newData 
     setData(newData)
   }
 };
 
 const sortingToAddresses = async(blockInfo) => {
+  console.log('sortingToAddresses start...')
   const transactions = blockInfo.transactions.length > 210 ? blockInfo.transactions.slice(0,210) : blockInfo.transactions
   let source = {};
   for(let i of transactions) {
     const transaction = await web3.eth.getTransaction(i)
+    // console.log('sortingToAddresses, in for loop, transaction:', transaction)
     if(SOURCE_ADDRESSED_ARRAY.includes(transaction.to)) {
       source[transaction.to] = source[transaction.to]+1 || 0
     }
@@ -161,13 +190,12 @@ const sortingToAddresses = async(blockInfo) => {
       source[transaction.from] = source[transaction.from]+1 || 0
     }
   }
+  console.log('sortingToAddresses end. source:',source)
 
   // setCounts(source)
   // console.log('source', source)
   return source
 }
-
-console.log('data', data)
 
   return (
     <div className="App">
