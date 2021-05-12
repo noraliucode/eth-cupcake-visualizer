@@ -5,17 +5,16 @@ Reference - [We Bare Bears - Cupcake Job (Preview) Clip 2](https://www.youtube.c
 >點子，有比較大的交易時，甜點（料）可以大一點
 
 5/12
-```javascript=
-// 料的移動 （依照數量撒料）
-// 想使用particle
-// 可使用這個雪的範例調整速度+數量
-//https://codepen.io/n-sayenko/pen/qOXKVr
-// 後來發現這種發射器的效果應該更適合，因為會從一個點發射出來
-//https://codepen.io/matteobruni/pen/eYBaGxy
-// 但突然又想到發射出來的particle不會停留在蛋糕上面 😨
+料的移動 （依照數量撒料）
+想使用particle
+可使用範例調整速度+數量
 
+後來發現這種發射器的效果應該更適合，因為會從一個點發射出來
+https://codepen.io/matteobruni/pen/eYBaGxy
 
-```
+兩種做法
+1. 發射出來以後消失，然後在蛋糕上的料漸漸浮現
+2. 自己寫一個料灑下來的動畫，這樣才能客製化需求（比如hover過去有該transaciton解說，灑到某個位置上就停下來定點，調整數量，跟樣式），也許可以參考particle library程式碼`動畫`的部分
 ![](https://i.imgur.com/2HcFLzz.png =x300)
 
 5/11
