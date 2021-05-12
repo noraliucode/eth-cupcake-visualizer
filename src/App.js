@@ -18,6 +18,8 @@ const SOURCE_ADDRESSES = {
   '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5': 'Compound', 
   '0xfa52274dd61e1643d2205169732f29114bc240b3': 'Kraken',
   '0x6B175474E89094C44Da98b954EedeAC495271d0F': 'makerDAO',
+  '0x12459c951127e0c374ff9105dda097662a027093': '0x',
+  '0xDef1C0ded9bec7F1a1670819833240f027b25EfF': '0x'
   } 
 
   const SOURCE_ADDRESSED_ARRAY = [
@@ -30,6 +32,8 @@ const SOURCE_ADDRESSES = {
     '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5',
     '0xfa52274dd61e1643d2205169732f29114bc240b3',
     '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+    '0x12459c951127e0c374ff9105dda097662a027093',
+    '0xDef1C0ded9bec7F1a1670819833240f027b25EfF'
     ]
 
   const TOTAL_BLOCK = 1
@@ -182,7 +186,7 @@ const sortingToAddresses = async(blockInfo) => {
   let source = {};
   for(let i of transactions) {
     const transaction = await web3.eth.getTransaction(i)
-    // console.log('sortingToAddresses, in for loop, transaction:', transaction)
+    console.log('sortingToAddresses, in for loop, transaction:', transaction)
     if(SOURCE_ADDRESSED_ARRAY.includes(transaction.to)) {
       source[transaction.to] = source[transaction.to]+1 || 0
     }
