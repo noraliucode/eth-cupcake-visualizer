@@ -84,6 +84,10 @@ function App() {
   const dataRef = useRef(data);
   dataRef.current = data;
 
+  const ballRef = useRef(null);
+  console.log('ballRef', ballRef)
+
+
   const GetBlockEffect = () => {
     const [intervalId, setIntervalId] = useState();
     useEffect(() => {
@@ -204,6 +208,12 @@ const sortingToAddresses = async(blockInfo) => {
   return (
     <div className="App">
       <header className="App-header">
+        <div className="ballStyle" ref={ballRef}></div>
+        <button onClick={()=> {
+          if(ballRef.current) {
+            ballRef.current.style.transform = 'translateY(-200px)'
+          }
+          }}>move ball</button>
         <div>{renderSource()}</div>
       </header>
     </div>
